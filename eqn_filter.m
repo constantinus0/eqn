@@ -56,7 +56,11 @@ if strcmp(type, 'high') || strcmp(type, 'low')
 elseif strcmp(type, 'pass')
     type = 'stop';
     if length(freq) == 2
-        cutoff = freq;
+        if (diff(freq) > 0) && ~all(isnan(freq))
+            cutoff = freq;
+        else
+            error('eqn_filter: Values of ''freq'' must be increasing and non-NaN.');
+        end
     else
         error(['A bandpass filter has been declared, but ''freq'' parameter',...
             'seems not to be a two-valued vector! Enter ''freq'' as a [minF',...
