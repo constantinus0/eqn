@@ -61,16 +61,6 @@ output_format = lower(output_format);
 
 R_EARTH = 6371.2001953125; % Reference Earth Radius in km
 
-% Check if oner_desp_lib is installed (if the files exist in the matlab
-% path)
-if exist('onera_desp_lib_rotate','file') == 2
-
-% Run a random line, to initialize library (it seems that if you try to
-% perform a getMLT without having ran any of the coord transforms, as when
-% the in and out are already in xGEO, the program fails and outputs only
-% NaNs! just running a simple line as the one below seems to fix this)
-onera_desp_lib_rotate([1,1.2,1],'geo2gsm',datenum(2012,1,1));
-
 % The concept: Transform everything to xGEO. From there take it to xOUT and
 % if necessary, transform to rOUT.
 
@@ -79,6 +69,7 @@ onera_desp_lib_rotate([1,1.2,1],'geo2gsm',datenum(2012,1,1));
 % THETA respectively, contrary to common notation of spherical coordinates!!! 
 % In general Matlab returns [azimuth, elevation, radius] while the typical
 % format is [elevation, azimuth, radius]
+
 xIN = zeros(L,3);
 switch input_format(1)
     case 'r' % [LAT, LON, R]
@@ -104,54 +95,77 @@ switch input_format(1)
         error('coordinateTransform: Unknown or unsupported input format');
 end
 
-xGEO = zeros(L,3); %#ok<NASGU>
 switch input_format(2:li)
     case 'geo' 
         % already in xGEO - do nothing
         xGEO = xIN;
-    case 'sm'
-        xGEO = onera_desp_lib_rotate(xIN,'sm2geo',t); 
-    case {'gm','mag'}
-        xGEO = onera_desp_lib_rotate(xIN,'mag2geo',t); 
-    case {'gse'}
-        xGEO = onera_desp_lib_rotate(xIN,'gse2geo',t); 
-    case 'gsm'
-        xGEO = onera_desp_lib_rotate(xIN,'gsm2geo',t); 
-    case 'gei'
-        xGEO = onera_desp_lib_rotate(xIN,'gei2geo',t); 
     otherwise
-        error('coordinateTransform: Unknown or unsupported input format');
+        if exist('onera_desp_lib_rotate','file') == 2
+            % Run a random line, to initialize library 
+            onera_desp_lib_rotate([1,1.2,1],'geo2gsm',datenum(2012,1,1));
+            
+            switch input_format(2:li)
+                case 'sm'
+                    xGEO = onera_desp_lib_rotate(xIN,'sm2geo',t); 
+                case {'gm','mag'}
+                    xGEO = onera_desp_lib_rotate(xIN,'mag2geo',t); 
+                case {'gse'}
+                    xGEO = onera_desp_lib_rotate(xIN,'gse2geo',t); 
+                case 'gsm'
+                    xGEO = onera_desp_lib_rotate(xIN,'gsm2geo',t); 
+                case 'gei'
+                    xGEO = onera_desp_lib_rotate(xIN,'gei2geo',t); 
+                otherwise
+                    error('coordinateTransform: Unknown or unsupported input format');
+            end
+        else
+            xGEO = [];
+        end
 end
 
 switch output_format(2:lo)
     case 'geo'
         % already in xGEO - do nothing
         xOUT = xGEO;
-    case {'mag','gm'}
-        xOUT = onera_desp_lib_rotate(xGEO,'geo2mag',t);
-    case 'sm'
-        xOUT = onera_desp_lib_rotate(xGEO,'geo2sm',t); 
-    case 'gse'
-        xOUT = onera_desp_lib_rotate(xGEO,'geo2gse',t); 
-    case 'gsm'
-        xOUT = onera_desp_lib_rotate(xGEO,'geo2gsm',t);
-    case 'gei'
-        xOUT = onera_desp_lib_rotate(xGEO,'geo2gei',t); 
-    case 'lt'
-        xOUT = onera_desp_lib_get_mlt(t,xGEO);
     otherwise
-        error('coordinateTransform: Unknown or unsupported output format');
+        % Check if onera_desp_lib is installed
+        if exist('onera_desp_lib_rotate','file') == 2
+            % Run a random line, to initialize library 
+            onera_desp_lib_rotate([1,1.2,1],'geo2gsm',datenum(2012,1,1));
+            
+            switch output_format(2:lo)
+                case {'mag','gm'}
+                    xOUT = onera_desp_lib_rotate(xGEO,'geo2mag',t);
+                case 'sm'
+                    xOUT = onera_desp_lib_rotate(xGEO,'geo2sm',t); 
+                case 'gse'
+                    xOUT = onera_desp_lib_rotate(xGEO,'geo2gse',t); 
+                case 'gsm'
+                    xOUT = onera_desp_lib_rotate(xGEO,'geo2gsm',t);
+                case 'gei'
+                    xOUT = onera_desp_lib_rotate(xGEO,'geo2gei',t); 
+                case 'lt'
+                    xOUT = onera_desp_lib_get_mlt(t,xGEO);
+                otherwise
+                    error('coordinateTransform: Unknown or unsupported output format');
+            end
+        else
+            xOUT = [];
+        end
 end
         
 switch output_format(1)
     case 'r' % [LAT, LON, R]
-        %[xIN(:,1), xIN(:,2), xIN(:,3)] = sph2cart(in(:,2), in(:,1), in(:,3));
-        out = zeros(L,3);
-        [out(:,2), out(:,1), out(:,3)] = cart2sph(xOUT(:,1), xOUT(:,2), xOUT(:,3));
-        out(:,1) = radtodeg(out(:,1));
-        out(:,2) = radtodeg(out(:,2));
-        fneg = find(out(:,2) < 0);
-        out(fneg ,2) = out(fneg ,2) + 360;
+        if ~isempty(xOUT)
+            out = zeros(L,3);
+            [out(:,2), out(:,1), out(:,3)] = cart2sph(xOUT(:,1), xOUT(:,2), xOUT(:,3));
+            out(:,1) = radtodeg(out(:,1));
+            out(:,2) = radtodeg(out(:,2));
+            fneg = find(out(:,2) < 0);
+            out(fneg ,2) = out(fneg ,2) + 360;
+        else
+            out = [];
+        end
     case 'x' 
         out = xOUT;
     case 'm'
@@ -160,9 +174,6 @@ switch output_format(1)
         error('coordinateTransform: Unknown or unsupported input format');
 end
 
-else % if onera_desp_lib was not found
-    out = [];
-end
 end
 
 end

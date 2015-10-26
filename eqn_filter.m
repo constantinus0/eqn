@@ -120,4 +120,3 @@ end
 %   H = freqz(B, A, freq_vec, sampling_freq); plot(freq_vec, abs(H));
 %   will plot the frequency response of the filter for the frequencies
 %   specified in freq_vec (all frequency values in Hz). 
-

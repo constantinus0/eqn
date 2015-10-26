@@ -25,6 +25,11 @@ TF = false;
 fullname = '';
 
 fileMeta = dir(ftpObj, filename);
+% if nothing found, check again in Linux format ('/' instead of '\')
+if isempty(fileMeta)
+    filename = strrep(filename, '\', '/');
+    fileMeta = dir(ftpObj, filename);
+end
 
 if ~isempty(fileMeta)
     % check if there are more than one results 
