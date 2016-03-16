@@ -19,8 +19,11 @@ if nargin < 2; error('Too few input arguments'); end
 xbins = linspace(x_lims(1), x_lims(end), no_of_x_bins+1-isInt(1));
 ybins = linspace(y_lims(1), y_lims(end), no_of_y_bins+1-isInt(2));
 
+% find bin width (if 0, set to 1 to avoid divide_by_zero errors!)
 dxbins = xbins(2) - xbins(1);
+if dxbins == 0; dxbins = 1; end
 dybins = ybins(2) - ybins(1);
+if dybins == 0; dybins = 1; end
 
 % remove points that fall outside the bin lims
 fx = find(x<xbins(1) | x>xbins(end) | isnan(x));

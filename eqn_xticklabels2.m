@@ -5,8 +5,9 @@ if nargin<4
 end
 
 ylimits = get(axh, 'ylim');
+font_size = get(axh, 'FontSize');
 dy = ylimits(2) - ylimits(1);
 text(xticks, (ylimits(1) - ymultiplier*dy)*ones(size(xticks)), xticklabels2, ...
-    'HorizontalAlignment', 'center')
+    'HorizontalAlignment', 'center', 'FontSize', font_size);
 
 end

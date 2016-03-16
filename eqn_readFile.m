@@ -218,9 +218,15 @@ switch type
             metadata = cdfinfo(filename);
             time_series = {};
         else
+            try
             [CDF_DATA, metadata] = cdfread(filename, ...
                     'Variables',params,...
                     'ConvertEpochToDatenum', 1, 'CombineRecords', 1);
+            catch %#ok<CTCH>
+                disp(['eqn_readFile: Could not read cdf file: ', filename]);
+                CDF_DATA = [];
+                metadata = [];
+            end
             
             if iscell(CDF_DATA)
                 t = CDF_DATA{:,end};
