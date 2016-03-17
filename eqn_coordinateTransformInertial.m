@@ -76,7 +76,7 @@ onera_desp_lib_rotate([1,1.2,1],'geo2gsm',datenum(2012,1,1));
 xIN = zeros(L,3);
 switch input_format(1)
     case 'r' % [LAT, LON, R]
-        [xIN(:,1), xIN(:,2), xIN(:,3)] = sph2cart(degtorad(in(:,2)), degtorad(in(:,1)), in(:,3));
+        [xIN(:,1), xIN(:,2), xIN(:,3)] = sph2cart((pi/180)*(in(:,2)), (pi/180)*(in(:,1)), in(:,3));
     case 'x' 
         xIN = in;
     otherwise
@@ -127,8 +127,8 @@ switch output_format(1)
         %[xIN(:,1), xIN(:,2), xIN(:,3)] = sph2cart(in(:,2), in(:,1), in(:,3));
         out = zeros(L,3);
         [out(:,2), out(:,1), out(:,3)] = cart2sph(xOUT(:,1), xOUT(:,2), xOUT(:,3));
-        out(:,1) = radtodeg(out(:,1));
-        out(:,2) = radtodeg(out(:,2));
+        out(:,1) = (180/pi)*(out(:,1));
+        out(:,2) = (180/pi)*(out(:,2));
         fneg = find(out(:,2) < 0);
         out(fneg ,2) = out(fneg ,2) + 360;
     case 'x' 

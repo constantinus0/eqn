@@ -81,7 +81,7 @@ switch input_format(1)
             R_in_Re = in(:,3);
         end
         
-        [xIN(:,1), xIN(:,2), xIN(:,3)] = sph2cart(degtorad(in(:,2)), degtorad(in(:,1)), R_in_Re);
+        [xIN(:,1), xIN(:,2), xIN(:,3)] = sph2cart((pi/180)*(in(:,2)), (pi/180)*(in(:,1)), R_in_Re);
     case 'x'
         if strcmp(units, 'km')
             xIN = in / R_EARTH;
@@ -159,8 +159,8 @@ switch output_format(1)
         if ~isempty(xOUT)
             out = zeros(L,3);
             [out(:,2), out(:,1), out(:,3)] = cart2sph(xOUT(:,1), xOUT(:,2), xOUT(:,3));
-            out(:,1) = radtodeg(out(:,1));
-            out(:,2) = radtodeg(out(:,2));
+            out(:,1) = (180/pi)*(out(:,1));
+            out(:,2) = (180/pi)*(out(:,2));
             fneg = find(out(:,2) < 0);
             out(fneg ,2) = out(fneg ,2) + 360;
         else
