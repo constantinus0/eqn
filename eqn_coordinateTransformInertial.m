@@ -1,4 +1,4 @@
-function out = eqn_coordinateTransform(t, in, input_format, output_format)
+function out = eqn_coordinateTransformInertial(t, in, input_format, output_format)
 %eqn_coordinateTransform Transform coordinates to/from many geophysical
 %systems.
 %
